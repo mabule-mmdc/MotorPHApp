@@ -97,7 +97,7 @@ public class EmployeeApp {
                     }
                 }
                 
-                Employee newEmployee = new Employee(processedRow.get(0), processedRow.get(2), processedRow.get(1), Float.parseFloat(processedRow.get(18)));
+                Employee newEmployee = new Employee(processedRow.get(0), processedRow.get(2), processedRow.get(1), Float.parseFloat(processedRow.get(18)), Float.parseFloat(processedRow.get(13)));
                 employees.add(newEmployee);
                 
                 row = br.readLine();
@@ -113,7 +113,7 @@ public class EmployeeApp {
             System.out.print("Enter Month Number (ex. 1 = January): ");
             String monthNumber = scanner.nextLine();
             
-            Employee selectedEmployee = new Employee("", "", "", 0);
+            Employee selectedEmployee = new Employee("", "", "", 0, 0);
             
             for (int index = 0; index < employees.size(); index++) {
                 Employee currentEmployee = employees.get(index);
@@ -123,7 +123,8 @@ public class EmployeeApp {
                 }
             }
             
-            System.out.println(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName() + " with hourly rate of " + selectedEmployee.getHourlyRate());
+            System.out.println(selectedEmployee.getFullName() + " with hourly rate of " + selectedEmployee.getHourlyRate());
+            System.out.println(selectedEmployee.getFullName() + " with basic salary of " + selectedEmployee.getBasicSalary());
             
             /**
              * Open CSV File
@@ -184,10 +185,8 @@ public class EmployeeApp {
             int monthlyTotalHours = selectedEmployee.getMonthlyTotalHours(parseInt(monthNumber));
             
             System.out.println("Monthly total hour for month of " + monthNumber + " is " + monthlyTotalHours + " hours.");
-            System.out.println("The gross monthly salary for " + selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName() + " is " + selectedEmployee.getMonthlyGrossSalary(parseInt(monthNumber)));
-            
-            System.out.println("Some lines here");
-            System.out.println("More commits!");
+            System.out.println("The gross monthly salary for " + selectedEmployee.getFullName() + " is " + selectedEmployee.getMonthlyGrossSalary(parseInt(monthNumber)));
+            System.out.println("The net monthly salary for " + selectedEmployee.getFullName() + " is " + selectedEmployee.getMonthlyNetSalary(parseInt(monthNumber)));
         } catch (FileNotFoundException ex) {
             System.out.println("No file found");
         } catch (IOException ex) {
