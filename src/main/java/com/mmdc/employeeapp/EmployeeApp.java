@@ -16,28 +16,28 @@ import java.text.SimpleDateFormat;
  * @author micahbule
  */
 public class EmployeeApp {
+    /**
+     * For Windows users, it might look like this one:
+     * String employeeDetailsPath = "C:\Users\\username\Downloads\whatever-the-file-name-is.csv";
+     */
+    String employeeDetailsPath = "/Users/micahbule/Downloads/MotorPH Employee Data - Employee Details.csv";
+    String employeeAttendancePath = "/Users/micahbule/Downloads/MotorPH Employee Data - Attendance Record.csv";
+    
+    ArrayList<Employee> employees = new ArrayList<Employee>();
+    
+    public EmployeeApp() {
 
-    public static void main(String[] args) {
-        /**
-         * For Windows users, it might look like this one:
-         * String employeeDetailsPath = "C:\Users\\username\Downloads\whatever-the-file-name-is.csv";
-         */
-        String employeeDetailsPath = "/Users/micahbule/Downloads/MotorPH Employee Data - Employee Details.csv";
-        String employeeAttendancePath = "/Users/micahbule/Downloads/MotorPH Employee Data - Attendance Record.csv";
-        
+        BufferedReader br = null;
         try {
             /**
              * Open CSV File
              */
-            BufferedReader br = new BufferedReader(new FileReader(employeeDetailsPath));
-            
+            br = new BufferedReader(new FileReader(this.employeeDetailsPath));
             /**
              * Read next line
              */
             String row = br.readLine();
-            ArrayList<Employee> employees = new ArrayList<Employee>();
             Boolean pastFirstLine = false;
-            
             /**
              * Is it the last line?
              * If no, do the following:
@@ -61,7 +61,7 @@ public class EmployeeApp {
                 String[] rowData = row.split(",");
                 /**
                  * Declare array list of strings for processed rows.
-                 * 
+                 *
                  * This is to cater data with commas such as addresses and amounts.
                  */
                 ArrayList<String> processedRow = new ArrayList<String>();
@@ -76,7 +76,7 @@ public class EmployeeApp {
                 Boolean concatOpen = false;
                 
                 /**
-                 * Go through 
+                 * Go through
                  */
                 for (int index = 0; index < rowData.length; index++) {
                     if (!rowData[index].contains("\"") && !concatOpen) {
@@ -98,45 +98,49 @@ public class EmployeeApp {
                 }
                 
                 Employee newEmployee = new Employee(processedRow.get(0), processedRow.get(2), processedRow.get(1), Float.parseFloat(processedRow.get(18)), Float.parseFloat(processedRow.get(13)));
-                employees.add(newEmployee);
+                this.employees.add(newEmployee);
                 
                 row = br.readLine();
             }
-            
-            /**
-             * After last line, do the following:
-             */
-            System.out.print("Enter Employee Number: ");
-            Scanner scanner = new Scanner(System.in);
-            String empNumberInput = scanner.nextLine();
-           
-            System.out.print("Enter Month Number (ex. 1 = January): ");
-            String monthNumber = scanner.nextLine();
-            
-            Employee selectedEmployee = new Employee("", "", "", 0, 0);
-            
-            for (int index = 0; index < employees.size(); index++) {
-                Employee currentEmployee = employees.get(index);
-                if (currentEmployee.getId().equals(empNumberInput)) {
-                    selectedEmployee = currentEmployee;
-                    break;
-                }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
+                Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            System.out.println(selectedEmployee.getFullName() + " with hourly rate of " + selectedEmployee.getHourlyRate());
-            System.out.println(selectedEmployee.getFullName() + " with basic salary of " + selectedEmployee.getBasicSalary());
-            
+        }
+    }
+    
+    public Employee getEmployeeByNumber(String employeeNumber) {
+        Employee selectedEmployee = new Employee("", "", "", 0, 0);
+        
+        for (int index = 0; index < this.employees.size(); index++) {
+            Employee currentEmployee = this.employees.get(index);
+            if (currentEmployee.getId().equals(employeeNumber)) {
+                selectedEmployee = currentEmployee;
+                break;
+            }
+        }
+        
+        return selectedEmployee;
+    }
+    
+    public void loadAttendanceData(Employee selectedEmployee) {
+        BufferedReader br2 = null;
+        try {
             /**
              * Open CSV File
              */
-            BufferedReader br2 = new BufferedReader(new FileReader(employeeAttendancePath));
-            
+            br2 = new BufferedReader(new FileReader(employeeAttendancePath));
             /**
              * Read next line
              */
             String row2 = br2.readLine();
             Boolean pastFirstLine2 = false;
-            
             /**
              * Is it the last line?
              * If no, do the following:
@@ -159,7 +163,7 @@ public class EmployeeApp {
                  */
                 String[] rowData = row2.split(",");
                 
-                if (!rowData[0].equals(empNumberInput)) {
+                if (!rowData[0].equals(selectedEmployee.getId())) {
                     row2 = br2.readLine();
                     continue;
                 }
@@ -179,20 +183,18 @@ public class EmployeeApp {
                 
                 row2 = br2.readLine();
             }
-            
-            System.out.println(selectedEmployee.getFirstName() + " has " + selectedEmployee.getTimeRecordsCount() + " time records available");
-            
-            int monthlyTotalHours = selectedEmployee.getMonthlyTotalHours(parseInt(monthNumber));
-            
-            System.out.println("Monthly total hour for month of " + monthNumber + " is " + monthlyTotalHours + " hours.");
-            System.out.println("The gross monthly salary for " + selectedEmployee.getFullName() + " is " + selectedEmployee.getMonthlyGrossSalary(parseInt(monthNumber)));
-            System.out.println("The net monthly salary for " + selectedEmployee.getFullName() + " is " + selectedEmployee.getMonthlyNetSalary(parseInt(monthNumber)));
         } catch (FileNotFoundException ex) {
-            System.out.println("No file found");
-        } catch (IOException ex) {
-            System.out.println("Cannot read lines from CSV file");
+            Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
-            System.out.println("Invalid dates");
+            Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                br2.close();
+            } catch (IOException ex) {
+                Logger.getLogger(EmployeeApp.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }
